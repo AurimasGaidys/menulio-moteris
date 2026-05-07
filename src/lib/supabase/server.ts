@@ -14,7 +14,10 @@ export async function createClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             )
-          } catch {}
+          } catch {
+            // Intentional: cookies() is read-only in Server Components.
+            // In Route Handlers and Server Actions this path should not throw.
+          }
         },
       },
     }

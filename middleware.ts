@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password', '/reset-password']
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password', '/reset-password', '/events']
 
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request)
@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
 
   const isPublic = PUBLIC_PATHS.some(p => pathname === p) ||
     pathname.startsWith('/invite/') ||
-    pathname.startsWith('/events')
+    pathname.startsWith('/events/')
 
   if (!isPublic && !user) {
     return NextResponse.redirect(new URL('/login', request.url))
