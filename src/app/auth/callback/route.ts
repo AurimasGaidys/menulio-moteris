@@ -11,7 +11,11 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      const forwardUrl = new URL(next, origin)
+      if (forwardUrl.origin !== origin) {
+        return NextResponse.redirect(new URL('/dashboard', origin))
+      }
+      return NextResponse.redirect(forwardUrl)
     }
   }
 
