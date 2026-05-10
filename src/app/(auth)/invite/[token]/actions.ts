@@ -7,7 +7,6 @@ import { z } from 'zod'
 
 const schema = z
   .object({
-    email: z.email(),
     token: z.string().min(1),
     password: z.string().min(8, 'Slaptažodis turi būti bent 8 simbolių'),
     confirmPassword: z.string(),
@@ -22,25 +21,26 @@ export async function createAccountFromInvite(
   formData: FormData
 ): Promise<{ error: string | null }> {
   const parsed = schema.safeParse({
-    email: formData.get('email'),
     token: formData.get('token'),
     password: formData.get('password'),
     confirmPassword: formData.get('confirmPassword'),
   })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
-  const { email, token, password } = parsed.data
+  const { token, password } = parsed.data
   const admin = createAdminClient()
 
-  // Re-validate token is still unused
+  // Fetch invite from DB — email comes from trusted source, not form input
   const { data: invite } = await admin
     .from('invites')
-    .select('id')
+    .select('id, email')
     .eq('token', token)
     .is('used_at', null)
     .single()
 
   if (!invite) return { error: 'Kvietimas nebegalioja.' }
+
+  const email = invite.email
 
   // Create user via admin API — auto-confirms email
   const { data: created, error: createError } = await admin.auth.admin.createUser({
@@ -49,6 +49,14 @@ export async function createAccountFromInvite(
     email_confirm: true,
   })
   if (createError || !created.user) return { error: 'Nepavyko sukurti paskyros.' }
+
+  // Create public.users row (name will be set during onboarding)
+  await admin.from('users').insert({
+    id: created.user.id,
+    name: email.split('@')[0],
+    membership_status: 'pending',
+    role: 'member',
+  })
 
   // Mark invite as used
   await admin
