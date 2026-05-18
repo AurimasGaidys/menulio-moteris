@@ -27,10 +27,10 @@ src/app/(onboarding)/
 | # | Route | Saves to | UI type |
 |---|-------|----------|---------|
 | 1 | `/onboarding/name` | `users.name` | Text input |
-| 2 | `/onboarding/location` | `profiles.location` | Auto-detect + manual text input |
+| 2 | `/onboarding/location` | `users.location` | Auto-detect + manual text input |
 | 3 | `/onboarding/topics` | `profiles.topics[]` | Tag multi-select |
 | 4 | `/onboarding/level` | `profiles.level` | Slider 1–5 |
-| 5 | `/onboarding/photo` | `profiles.avatar_url` | In-browser crop + Supabase Storage upload |
+| 5 | `/onboarding/photo` | `users.avatar_url` | In-browser crop + Supabase Storage upload |
 | 6 | `/onboarding/availability` | `profiles.availability` | 7-day × time-of-day grid (jsonb) |
 | 7 | `/onboarding/comfort` | `profiles.comfort_level` | Slider 1–5 |
 | 8 | `/onboarding/waiting` | — (read-only) | Pending approval state UI |
@@ -42,14 +42,15 @@ src/app/(onboarding)/
 - `/onboarding` reads profile fields in order and redirects to the first incomplete step.
 - If all steps are complete, `/onboarding` redirects to `/dashboard`.
 
-## Database Migration Required
+## Database Setup
 
-`profiles` table needs two new columns added via migration:
+No schema migration required. `users` table already has `location text` and `avatar_url text` columns. `profiles` already has all needed columns.
 
-```sql
-alter table public.profiles add column location text;
-alter table public.profiles add column avatar_url text;
-```
+Supabase Storage bucket `avatars` must exist with the following policies:
+- Insert: `bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]`
+- Select: `bucket_id = 'avatars'`
+
+Create it via Supabase dashboard or the migration in Task 1 of the implementation plan.
 
 ## Data Persistence
 
