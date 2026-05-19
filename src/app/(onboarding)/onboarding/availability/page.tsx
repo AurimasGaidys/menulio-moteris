@@ -1,9 +1,11 @@
+import { redirect } from 'next/navigation'
 import { getOnboardingData } from '@/lib/onboarding'
 import { StepShell } from '@/components/onboarding/step-shell'
 import { AvailabilityForm } from './availability-form'
 
 export default async function AvailabilityPage() {
-  const { profile } = await getOnboardingData()
+  const { dbUser, profile } = await getOnboardingData()
+  if (!dbUser) redirect('/onboarding')
 
   return (
     <StepShell

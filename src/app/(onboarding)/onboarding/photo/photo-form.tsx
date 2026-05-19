@@ -15,6 +15,7 @@ export function PhotoForm({ currentAvatarUrl }: { currentAvatarUrl: string | nul
   const [src, setSrc] = useState<string | null>(null)
   const [crop, setCrop] = useState<Crop>()
   const [clientError, setClientError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const imgRef = useRef<HTMLImageElement>(null)
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -33,7 +34,8 @@ export function PhotoForm({ currentAvatarUrl }: { currentAvatarUrl: string | nul
   }
 
   function handleSubmit() {
-    if (!imgRef.current || !crop) return
+    if (!imgRef.current || !crop || !crop.width || !crop.height) return
+    setSubmitting(true)
     const canvas = document.createElement('canvas')
     const SIZE = 400
     canvas.width = SIZE
@@ -46,7 +48,7 @@ export function PhotoForm({ currentAvatarUrl }: { currentAvatarUrl: string | nul
     const sh = (crop.height / 100) * img.naturalHeight
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, SIZE, SIZE)
     canvas.toBlob((blob) => {
-      if (!blob) return
+      if (!blob) { setClientError('Nepavyko apdoroti nuotraukos'); setSubmitting(false); return }
       const fd = new FormData()
       fd.append('photo', blob, 'avatar.jpg')
       dispatch(fd)
@@ -77,7 +79,7 @@ export function PhotoForm({ currentAvatarUrl }: { currentAvatarUrl: string | nul
         onClick={handleSubmit}
         className="w-full"
         style={{ backgroundColor: 'var(--brand-green)' }}
-        disabled={isPending || !src || !crop}
+        disabled={isPending || submitting || !src || !crop}
       >
         {isPending ? 'Įkeliama...' : 'Toliau →'}
       </Button>

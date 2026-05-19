@@ -1,9 +1,11 @@
+import { redirect } from 'next/navigation'
 import { getOnboardingData } from '@/lib/onboarding'
 import { StepShell } from '@/components/onboarding/step-shell'
 import { LevelForm } from './level-form'
 
 export default async function LevelPage() {
-  const { profile } = await getOnboardingData()
+  const { dbUser, profile } = await getOnboardingData()
+  if (!dbUser) redirect('/onboarding')
 
   return (
     <StepShell

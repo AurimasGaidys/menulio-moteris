@@ -6,6 +6,7 @@ export type OnboardingUser = {
   name: string
   location: string | null
   avatar_url: string | null
+  membership_status: string
 }
 
 export type OnboardingProfile = {
@@ -22,15 +23,15 @@ export async function getOnboardingData() {
 
   const { data: dbUser } = await supabase
     .from('users')
-    .select('id, name, location, avatar_url')
+    .select('id, name, location, avatar_url, membership_status')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('topics, level, availability, comfort_level')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
 
   return {
     user: { id: user.id, email: user.email },

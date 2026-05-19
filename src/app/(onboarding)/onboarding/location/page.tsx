@@ -1,9 +1,11 @@
+import { redirect } from 'next/navigation'
 import { getOnboardingData } from '@/lib/onboarding'
 import { StepShell } from '@/components/onboarding/step-shell'
 import { LocationForm } from './location-form'
 
 export default async function LocationPage() {
   const { dbUser } = await getOnboardingData()
+  if (!dbUser) redirect('/onboarding')
 
   return (
     <StepShell
