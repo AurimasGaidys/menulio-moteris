@@ -43,10 +43,10 @@ export async function saveName(
     if (error) return { error: 'Nepavyko išsaugoti. Bandykite dar kartą.' }
   }
 
-  // Ensure profile row exists (uses DB defaults for NOT NULL columns)
-  await supabase
+  const { error: profileError } = await supabase
     .from('profiles')
     .upsert({ user_id: user.id }, { onConflict: 'user_id', ignoreDuplicates: true })
+  if (profileError) return { error: 'Nepavyko sukurti profilio. Bandykite dar kartą.' }
 
   redirect('/onboarding/location')
 }
