@@ -77,7 +77,7 @@ export function PhotoForm({ currentAvatarUrl }: { currentAvatarUrl: string | nul
         onClick={handleSubmit}
         className="w-full"
         style={{ backgroundColor: 'var(--brand-green)' }}
-        disabled={isPending || !src}
+        disabled={isPending || !src || !crop}
       >
         {isPending ? 'Įkeliama...' : 'Toliau →'}
       </Button>

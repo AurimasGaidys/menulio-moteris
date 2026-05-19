@@ -16,7 +16,7 @@ export async function savePhoto(
   if (!user) return { error: 'Nesate prisijungę' }
 
   const bytes = new Uint8Array(await file.arrayBuffer())
-  const path = `${user.id}/${Date.now()}.jpg`
+  const path = `${user.id}/avatar.jpg`
 
   const { error: uploadError } = await supabase.storage
     .from('avatars')
